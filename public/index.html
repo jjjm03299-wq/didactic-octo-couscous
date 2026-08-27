@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Статический светофор 🚦</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #1e1e2f;
+      color: #fff;
+    }
+    .traffic-light {
+      background: #111;
+      padding: 25px;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border: 3px solid #444;
+    }
+    .bulb {
+      width: 80px;
+      height: 80px;
+      background: #333;
+      border-radius: 50%;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .bulb.red.active {
+      background: #ff4d4d;
+      box-shadow: 0 0 25px #ff4d4d;
+    }
+    .bulb.yellow.active {
+      background: #f1c40f;
+      box-shadow: 0 0 25px #f1c40f;
+    }
+    .bulb.green.active {
+      background: #2ecc71;
+      box-shadow: 0 0 25px #2ecc71;
+    }
+    .controls {
+      margin-top: 25px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+    #start-btn { background-color: #2ecc71; }
+    #yellow-btn { background-color: #f1c40f; color: #333; }
+    #green-btn { background-color: #27ae60; }
+    #stop-btn { background-color: #ff4d4d; }
+    button:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+  <div class="traffic-light">
+    <div id="red-bulb" class="bulb red"></div>
+    <div id="yellow-bulb" class="bulb yellow"></div>
+    <div id="green-bulb" class="bulb green"></div>
+  </div>
+
+  <div class="controls">
+    <button id="start-btn" onclick="fetchLightState('start')">Старт</button>
+    <button id="yellow-btn" onclick="fetchLightState('yellow')">Внимание</button>
+    <button id="green-btn" onclick="fetchLightState('green')">Зеленый</button>
+    <button id="stop-btn" onclick="fetchLightState('red')">Стоп</button>
+  </div>
+
+  <script>
+    async function fetchLightState(action) {
+      try {
+        // Асинхронно запрашивает соответствующий статичный JSON файл из папки api/
+        const response = await fetch(`./api/${action}.json`);
+        
+        if (!response.ok) {
+          throw new Error(`Ошибка HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        updateTrafficLight(data.state);
+      } catch (error) {
+        console.error('Не удалось загрузить состояние светофора:', error);
+        updateTrafficLight(action);
+      }
+    }
+
+    function updateTrafficLight(state) {
+      const redBulb = document.getElementById('red-bulb');
+      const yellowBulb = document.getElementById('yellow-bulb');
+      const greenBulb = document.getElementById('green-bulb');
+
+      // Сбрасываем подсветку всех ламп
+      redBulb.classList.remove('active');
+      yellowBulb.classList.remove('active');
+      greenBulb.classList.remove('active');
+
+      // Активируем нужную лампу в зависимости от поля "state" в JSON
+      if (state === 'green' || state === 'start') {
+        greenBulb.classList.add('active');
+      } else if (state === 'yellow') {
+        yellowBulb.classList.add('active');
+      } else if (state === 'red' || state === 'stopped' || state === 'stop') {
+        redBulb.classList.add('active');
+      }
+    }
+
+    // Инициализация при загрузке страницы (по умолчанию красный стоп)
+    fetchLightState('red');
+  </script>
+
+</body>
+</html>
