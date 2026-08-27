@@ -1,0 +1,7 @@
+{
+  "tokens": {
+    "visa": "tok_visa",
+    "mastercard": "tok_mastercard",
+    "amex": "tok_amex"
+  }
+}
